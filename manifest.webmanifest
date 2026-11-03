@@ -1,0 +1,20 @@
+{
+  "name": "حاسبة علمية",
+  "short_name": "حاسبة علمية",
+  "description": "آلة حاسبة علمية تعمل على جميع الأجهزة",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#10131d",
+  "theme_color": "#10131d",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

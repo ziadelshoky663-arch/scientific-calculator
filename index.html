@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>حاسبة علمية</title>
+  <meta name="theme-color" content="#10131d">
+  <meta name="description" content="آلة حاسبة علمية تعمل على iPhone وAndroid وPC">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #10131d;
+      --panel: #1a2030;
+      --key: #252d40;
+      --key-hover: #313c55;
+      --accent: #6c63ff;
+      --text: #f4f6ff;
+      --muted: #9da7c0;
+      --danger: #e85d75;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: radial-gradient(circle at top, #252b48, var(--bg) 55%);
+      color: var(--text);
+      font-family: Tahoma, Arial, sans-serif;
+    }
+    .calculator {
+      width: min(100%, 560px);
+      overflow: hidden;
+      border: 1px solid #303952;
+      border-radius: 22px;
+      background: var(--panel);
+      box-shadow: 0 24px 70px #0008;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 22px 24px 10px;
+    }
+    h1 { margin: 0; font-size: 1.35rem; }
+    .mode {
+      display: flex;
+      gap: 5px;
+      padding: 4px;
+      border-radius: 10px;
+      background: #101521;
+    }
+    .mode button {
+      border: 0;
+      border-radius: 7px;
+      padding: 7px 11px;
+      color: var(--muted);
+      background: transparent;
+      cursor: pointer;
+    }
+    .mode button.active { color: white; background: var(--accent); }
+    .screen { padding: 14px 24px 20px; }
+    #expression {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      color: var(--muted);
+      background: transparent;
+      font-size: 1.05rem;
+      text-align: left;
+      direction: ltr;
+    }
+    #display {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      color: var(--text);
+      background: transparent;
+      font-size: clamp(2rem, 8vw, 3.2rem);
+      font-weight: bold;
+      text-align: left;
+      direction: ltr;
+    }
+    .keys {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 9px;
+      padding: 20px;
+      background: #141a28;
+    }
+    button.key {
+      min-height: 52px;
+      border: 0;
+      border-radius: 12px;
+      color: var(--text);
+      background: var(--key);
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform .1s, background .1s;
+    }
+    button.key:hover { background: var(--key-hover); }
+    button.key:active { transform: scale(.96); }
+    .operator { color: #b7b2ff !important; }
+    .equals { color: white !important; background: var(--accent) !important; }
+    .danger { color: #ff9aab !important; }
+    .history {
+      max-height: 170px;
+      overflow: auto;
+      padding: 0 20px 20px;
+      background: #141a28;
+    }
+    .history h2 { margin: 0 0 8px; color: var(--muted); font-size: .9rem; }
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid #293148;
+      direction: ltr;
+      cursor: pointer;
+    }
+    .history-item span:first-child { color: var(--muted); }
+    .empty { color: #68728c; font-size: .9rem; }
+    @media (max-width: 420px) {
+      body { padding: 8px; }
+      .keys { gap: 6px; padding: 12px; }
+      button.key { min-height: 48px; }
+      header, .screen { padding-left: 16px; padding-right: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="calculator">
+    <header>
+      <h1>حاسبة علمية</h1>
+      <div class="mode" aria-label="وحدة الزوايا">
+        <button id="deg" class="active" type="button">DEG</button>
+        <button id="rad" type="button">RAD</button>
+      </div>
+    </header>
+    <section class="screen">
+      <input id="expression" readonly aria-label="العملية">
+      <input id="display" value="0" readonly aria-label="النتيجة">
+    </section>
+    <section class="keys" aria-label="أزرار الحاسبة">
+      <button class="key operator" data-value="sin(">sin</button>
+      <button class="key operator" data-value="cos(">cos</button>
+      <button class="key operator" data-value="tan(">tan</button>
+      <button class="key operator" data-value="log(">log</button>
+      <button class="key operator" data-value="ln(">ln</button>
+      <button class="key operator" data-value="sqrt(">√</button>
+      <button class="key operator" data-value="^">xʸ</button>
+      <button class="key operator" data-value="π">π</button>
+      <button class="key operator" data-value="e">e</button>
+      <button class="key danger" data-action="clear">AC</button>
+      <button class="key" data-value="7">7</button>
+      <button class="key" data-value="8">8</button>
+      <button class="key" data-value="9">9</button>
+      <button class="key operator" data-value="/">÷</button>
+      <button class="key danger" data-action="backspace">⌫</button>
+      <button class="key" data-value="4">4</button>
+      <button class="key" data-value="5">5</button>
+      <button class="key" data-value="6">6</button>
+      <button class="key operator" data-value="*">×</button>
+      <button class="key operator" data-value="(">(</button>
+      <button class="key" data-value="1">1</button>
+      <button class="key" data-value="2">2</button>
+      <button class="key" data-value="3">3</button>
+      <button class="key operator" data-value="-">−</button>
+      <button class="key operator" data-value=")">)</button>
+      <button class="key" data-value="0">0</button>
+      <button class="key" data-value=".">.</button>
+      <button class="key operator" data-value="%">%</button>
+      <button class="key operator" data-value="+">+</button>
+      <button class="key equals" data-action="equals">=</button>
+    </section>
+    <section class="history">
+      <h2>سجل العمليات</h2>
+      <div id="history-list" class="empty">لا توجد عمليات بعد</div>
+    </section>
+  </main>
+  <script>
+    const expression = document.querySelector('#expression');
+    const display = document.querySelector('#display');
+    const historyList = document.querySelector('#history-list');
+    let input = '';
+    let angleMode = 'deg';
+    let history = JSON.parse(localStorage.getItem('scientific-history') || '[]');
+
+    function render() {
+      expression.value = input || '0';
+      display.value = input ? preview(input) : '0';
+      renderHistory();
+    }
+    function preview(value) {
+      try {
+        const result = calculate(value);
+        return Number.isFinite(result) ? format(result) : '...';
+      } catch {
+        return '...';
+      }
+    }
+    function format(value) {
+      return Number(value.toPrecision(12)).toString();
+    }
+    function calculate(value) {
+      const tokens = value.replace(/π/g, 'pi').match(/(?:sin|cos|tan|log|ln|sqrt|pi|e|[0-9]+(?:\.[0-9]*)?|[()+\-*/%^])/g);
+      if (!tokens || tokens.join('') !== value.replace(/π/g, 'pi')) throw Error('صيغة غير صحيحة');
+      let position = 0;
+      const peek = () => tokens[position];
+      const take = () => tokens[position++];
+      const primary = () => {
+        const token = take();
+        if (token === '(') {
+          const result = addSub();
+          if (take() !== ')') throw Error('قوس غير مغلق');
+          return result;
+        }
+        if (token === '-') return -primary();
+        if (token === 'pi') return Math.PI;
+        if (token === 'e') return Math.E;
+        if (/^(sin|cos|tan|log|ln|sqrt)$/.test(token)) {
+          if (take() !== '(') throw Error('الدالة تحتاج قوسًا');
+          const argument = addSub();
+          if (take() !== ')') throw Error('قوس غير مغلق');
+          if (token === 'sqrt') return Math.sqrt(argument);
+          if (token === 'log') return Math.log10(argument);
+          if (token === 'ln') return Math.log(argument);
+          const radians = angleMode === 'deg' ? argument * Math.PI / 180 : argument;
+          return Math[token](radians);
+        }
+        if (token && !Number.isNaN(Number(token))) return Number(token);
+        throw Error('تعبير غير صحيح');
+      };
+      const power = () => {
+        let result = primary();
+        if (peek() === '^') { take(); result = result ** power(); }
+        return result;
+      };
+      const multiply = () => {
+        let result = power();
+        while (peek() === '*' || peek() === '/' || peek() === '%') {
+          const operation = take();
+          const right = power();
+          if (operation === '*') result *= right;
+          if (operation === '/') result /= right;
+          if (operation === '%') result %= right;
+        }
+        return result;
+      };
+      function addSub() {
+        let result = multiply();
+        while (peek() === '+' || peek() === '-') {
+          const operation = take();
+          const right = multiply();
+          result = operation === '+' ? result + right : result - right;
+        }
+        return result;
+      }
+      const result = addSub();
+      if (position !== tokens.length || !Number.isFinite(result)) throw Error('نتيجة غير صالحة');
+      return result;
+    }
+    function renderHistory() {
+      if (!history.length) {
+        historyList.className = 'empty';
+        historyList.textContent = 'لا توجد عمليات بعد';
+        return;
+      }
+      historyList.className = '';
+      historyList.innerHTML = history.map((item, index) =>
+        `<div class="history-item" data-index="${index}"><span>${item.input}</span><strong>= ${item.result}</strong></div>`
+      ).join('');
+    }
+    function evaluate() {
+      if (!input) return;
+      try {
+        const result = format(calculate(input));
+        history.unshift({ input, result });
+        history = history.slice(0, 20);
+        localStorage.setItem('scientific-history', JSON.stringify(history));
+        input = result;
+        render();
+      } catch {
+        display.value = 'خطأ';
+      }
+    }
+    document.querySelector('.keys').addEventListener('click', event => {
+      const button = event.target.closest('button');
+      if (!button) return;
+      if (button.dataset.value) input += button.dataset.value;
+      if (button.dataset.action === 'clear') input = '';
+      if (button.dataset.action === 'backspace') input = input.slice(0, -1);
+      if (button.dataset.action === 'equals') return evaluate();
+      render();
+    });
+    document.querySelector('.mode').addEventListener('click', event => {
+      if (!event.target.matches('button')) return;
+      angleMode = event.target.id;
+      document.querySelectorAll('.mode button').forEach(button => button.classList.toggle('active', button.id === angleMode));
+      render();
+    });
+    historyList.addEventListener('click', event => {
+      const item = event.target.closest('.history-item');
+      if (item) { input = history[Number(item.dataset.index)].input; render(); }
+    });
+    document.addEventListener('keydown', event => {
+      if (/^[0-9.+\-*/%^()]$/.test(event.key)) { input += event.key; render(); }
+      if (event.key === 'Enter') evaluate();
+      if (event.key === 'Backspace') { input = input.slice(0, -1); render(); }
+      if (event.key === 'Escape') { input = ''; render(); }
+    });
+    render();
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('service-worker.js'));
+    }
+  </script>
+</body>
+</html>
