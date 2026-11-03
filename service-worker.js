@@ -1,4 +1,4 @@
-const CACHE_NAME = 'scientific-calculator-v1';
+const CACHE_NAME = 'scientific-calculator-v2';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon.svg'];
 
 self.addEventListener('install', event => {
