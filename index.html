@@ -47,6 +47,11 @@
       padding: 22px 24px 10px;
     }
     h1 { margin: 0; font-size: 1.35rem; }
+    .welcome {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: .82rem;
+    }
     .mode {
       display: flex;
       gap: 5px;
@@ -136,7 +141,10 @@
 <body>
   <main class="calculator">
     <header>
-      <h1>حاسبة علمية</h1>
+      <div>
+        <h1>حاسبة علمية</h1>
+        <p class="welcome">أهلاً بكم في مجموعة فرعون الخاصة بزياد الشوكي</p>
+      </div>
       <div class="mode" aria-label="وحدة الزوايا">
         <button id="deg" class="active" type="button">DEG</button>
         <button id="rad" type="button">RAD</button>
